@@ -1,0 +1,113 @@
+/* datepicker ----------------------------------------------------------------------------- */
+.dtp {
+	z-index: 13000;
+}
+.dtp-header {
+	display: none;
+}
+.dtp div.dtp-date {
+	height: 0;
+	padding: 0 !important;
+}
+
+.dtp-content {
+	min-width: 400px;
+}
+
+#dtp_znmCw .dtp-content {
+	min-width: 200px;
+}
+.dtp table.dtp-picker-days tr > td > a, .dtp .dtp-picker-time > a {
+	padding: 1.2em 1.35em;
+}
+.dtp table.dtp-picker-days tr > td > a.selected {
+	background-color: #74a3d2;
+}
+.dtp div.dtp-picker-month, .dtp div.dtp-actual-time {
+	text-align: left;
+	padding: 0 1.6em;
+}
+.dtp-select-month-after,
+.dtp-select-month-before {
+	position: absolute;
+	top: 15px;
+	right: 2em;
+	width: 20px;
+	height: 20px;
+	text-indent: -9999px;
+	display: inline-block;
+	background: url(/img/arrow-down.png) 0 0 no-repeat;
+	-webkit-background-size: cover;
+	background-size: cover;
+	transform: rotate(-90deg);
+}
+.dtp-select-month-before {
+	right: 4.6em;
+	transform: rotate(90deg);
+}
+.dtp-select-year-after,
+.dtp-select-year-before {
+	display: none;
+}
+.dtp-actual-year {
+	display: none !important;
+}
+.dtp-buttons .btn {
+	border: 0;
+	text-transform: uppercase;
+	font-size: 15px;
+	margin-right: 1.6em;
+	cursor: pointer;
+	color: #6f6f7a;
+}
+.dtp div.dtp-picker-month {
+	padding-bottom: 0 !important;
+}
+
+/* timepicker ----------------------------------------------------------------------------- */
+.dtp div.dtp-actual-maxtime {
+	padding: 1em;
+	background-color: #74a3d2;
+}
+.dtp div.dtp-date, .dtp div.dtp-time {
+	background-color: #74a3d2;
+}
+.dtp-select-hour {
+	/* fill: #74a3d2;  */
+}
+#dtp-svg-clock {
+	max-width: 80%;
+	margin: auto;
+}
+.dtp-meridien-pm, .dtp-meridien-am {
+	display: none;
+}
+.svg-clock .hour-hand[stroke="#bdbdbd"] {
+	stroke-width: 0;
+
+}
+.svg-clock .hour-hand:not([stroke="#bdbdbd"]) {
+	stroke: #74a3d2;
+	stroke-width: 4;
+
+}
+
+.svg-clock .minute-hand[stroke="#bdbdbd"] {
+	stroke-width: 0;
+}
+.svg-clock .minute-hand:not([stroke="#bdbdbd"]) {
+	stroke: #74a3d2;
+	stroke-width: 4;
+}
+.svg-clock circle[fill="#8BC34A"] {
+	fill: #74a3d2;
+}
+.svg-clock circle[fill="#757575"] {
+	r: 5;
+	fill: #74a3d2;
+}
+.svg-clock circle[fill="#eee"] {
+	fill: #e9eff3;
+	stroke: #e9eff3;
+	stroke-width: 15;
+}

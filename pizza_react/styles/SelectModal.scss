@@ -1,0 +1,17 @@
+.list {
+  padding-top: 20px !important;
+
+  .listItem {
+    height: 62px;
+    text-align: center;
+
+    div {
+      justify-content: center;
+    }
+  }
+
+  .__selected {
+    background: #719539;
+    color: #fff;
+  }
+}

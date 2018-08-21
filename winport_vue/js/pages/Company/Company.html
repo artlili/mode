@@ -1,0 +1,409 @@
+<section class="page_content">
+    <section class="company_info">
+        <div class="cont">
+            <div class="head">
+                <div class="col left">
+                    <h1 class="name">{{company.item.name}}</h1>
+                    <div class="desc"></div>
+                </div>
+
+
+                <div class="col right">
+                    <!-- <a href="#company_feedback_modal" class="feedback_link modal_link">Связаться с компанией</a> -->
+                </div>
+                <div class="clear"></div>
+            </div>
+
+
+            <div class="info">
+                <div class="contacts left">
+                    <div class="adres">
+                        <div class="title">Адрес</div>
+                        <div>{{company.item.address}}</div>
+                    </div>
+
+                    <div class="links">
+                        <a class="modal_link" @click="prompt = 'phones'">
+                            <div class="icon phones"></div>Телефоны
+                        </a>
+                        <a v-if="company.item.email" class="modal_link" @click="prompt = 'email'">
+                            <div class="icon email"></div>E-mail
+                        </a>
+                        <a v-if="company.item.working_time && company.item.working_time !== '*'" @click="prompt = 'working_time'">
+                            <div class="icon branches"></div>Расписание
+                        </a>
+                        <a :href="company.item.website" target="_blank" v-if="company.item.website">
+                            <div class="icon site"></div>Вебсайт
+                        </a>
+                    </div>
+                </div>
+
+                <div class="map right">
+                    <div id="map">
+                        <yandex-map
+                                :coords="ymapCenterCoords"
+                                :center="ymapCenterCoords"
+                                :zoom="ymapZoom"
+                                style="width: 100%; height: 100%;"
+                                :cluster-options="{1: {clusterDisableClickZoom: true}}"
+                                :controls="[]"
+                                :placemarks="ymapPlacemarks"
+                                map-type="map"
+                        >
+                        </yandex-map>
+                    </div>
+
+                    <router-link :to="'/company/' + alias + '/map'"
+                            class="map_link"
+                            v-bind:class="{ active: $route.params.companySegment === 'map' }">
+                        Карта
+                    </router-link>
+                </div>
+
+
+                <div class="logo right">
+                    <img :src="company.item.logo ? company.item.logo : noImageUrls.company270180" alt="">
+                </div>
+                <div class="clear"></div>
+
+
+                <div class="features" v-if="(company.item.unp_inn && company.item.unp_inn !== '*') || company.item.svidetelstvo_o_registratsii">
+                    <div class="item" v-if="company.item.unp_inn && company.item.unp_inn !== '*'">
+                        УНП/ИНН: {{company.item.unp_inn}}
+                    </div>
+                    <div class="item" v-if="company.item.svidetelstvo_o_registratsii">
+                        Свидетельство о регистрации: {{company.item.svidetelstvo_o_registratsii}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <div class="cont">
+        <section class="page_menu">
+            <router-link :to="'/company/' + alias"
+
+                    class="name"
+                    v-bind:class="{ active: !$route.params.companySegment }">
+                О компании
+            </router-link>
+            <router-link :to="'/company/' + alias + '/news'"
+                    v-if="company.item.news.length"
+                    class="name"
+                    v-bind:class="{ active: $route.params.companySegment === 'news' }">
+                Новости компании
+            </router-link>
+            <router-link :to="'/company/' + alias + '/albums'"
+                    v-if="company.item.companyAlbums && company.item.companyAlbums.length"
+                    class="name"
+                    v-bind:class="{ active: $route.params.companySegment === 'albums' }">
+                Изображения
+            </router-link>
+            <router-link :to="'/company/' + alias + '/map'"
+                    v-if="company.item.address"
+                    class="name"
+                    v-bind:class="{ active: $route.params.companySegment === 'map' }">
+                На карте
+            </router-link>
+            <router-link :to="'/company/' + alias + '/products'"
+                         v-if="company.item.products.length"
+                         class="name"
+                         v-bind:class="{ active: $route.params.companySegment === 'products' }">
+                Продукты
+            </router-link>
+        </section>
+
+        <section class="page_menu mobile">
+            <div class="page_menu-select" 
+                     v-on:click="openSelect" 
+                     v-bind:class="{ open: isOpen }"> О компании
+                    
+                <div class="select-list">
+                    
+                    <router-link :to="'/company/' + alias + '/news'"
+                            v-if="company.item.news.length"
+                            class="name"
+                            v-bind:class="{ active: $route.params.companySegment === 'news' }">
+                        Новости компании
+                    </router-link>
+                    <router-link :to="'/company/' + alias + '/albums'"
+                            v-if="company.item.companyAlbums && company.item.companyAlbums.length"
+                            class="name"
+                            v-bind:class="{ active: $route.params.companySegment === 'albums' }">
+                        Изображения
+                    </router-link>
+                    <router-link :to="'/company/' + alias + '/map'"
+                            v-if="company.item.address"
+                            class="name"
+                            v-bind:class="{ active: $route.params.companySegment === 'map' }">
+                        На карте
+                    </router-link>
+                    <router-link :to="'/company/' + alias + '/products'"
+                                 v-if="company.item.products.length"
+                                 class="name"
+                                 v-bind:class="{ active: $route.params.companySegment === 'products' }">
+                        Продукты
+                    </router-link>
+                </div>
+            </div>
+            
+        </section>
+
+
+
+
+        <section class="content_grid" v-if="!$route.params.companySegment">
+            <section class="company_content content">
+
+                <section class="text_block" v-html="company.item.text"></section>
+
+            </section>
+
+            <aside>
+                <div class="block">
+                    <section class="company_view_sections" v-if="company.item.sections.length">
+                        <div class="title">Категории</div>
+
+                        <router-link :to="'/products/' + section.alias" v-for="section in company.item.sections" key="alias">
+                            <span>{{section.name}}</span>
+                        </router-link>
+                    </section>
+                </div>
+
+                <div class="block" v-if="company.item.news.length">
+
+                    <div class="block_title">
+                        <router-link :to="'/company/' + company.item.alias + '/news'">
+                            Новости
+                        </router-link>
+                    </div>
+
+                    <div class="news_list">
+                        <router-link :to="'/article/' + company.item.news[i].alias"
+                           v-for="i in [0, 1]"
+                           key="i"
+                           v-if="company.item.news[i]"
+                           class="item type1"
+                           v-bind:style="{ backgroundImage: 'url(' + (company.item.news[i].image_400_400 ? company.item.news[i].image_400_400 : noImageUrls.article400400) + ')' }">
+                            <div class="info">
+                                <div class="name">{{company.item.news[i].name}}</div>
+
+                                <div class="desc" v-html="company.item.news[i].introtext"></div>
+
+                                <div class="bottom">
+                                    <div class="date left">
+                                        {{company.item.news[i].article_date}}
+                                    </div>
+                                    <div class="clear"></div>
+                                </div>
+                            </div>
+                        </router-link>
+                    </div>
+                </div>
+            </aside>
+        </section>
+
+
+        <section class="gallery_grid" v-if="$route.params.companySegment === 'albums'">
+            <div v-for="(album, index) in company.item.companyAlbums" v-if="company.item && company.item.companyAlbums.length">
+                <div class="block_title left">{{album.name}}</div>
+                <div class="clear"></div>
+                <div class="grid">
+                    <div class="item_wrap" v-for="image in album.images">
+                        <span class="item fancy_img" @click="imageIndex = ++imageNumber">
+                            <img :src="image.url" alt="">
+                            <div class="name" v-if="image.name">{{image.name}}</div>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <gallery :images="companyAlbumImages" :index="imageIndex" @close="imageIndex = null"></gallery>
+        </section>
+
+
+        <section class="company_map" v-show="$route.params.companySegment === 'map'">
+            <yandex-map
+                    :coords="ymapCenterCoords"
+                    :center="ymapCenterCoords"
+                    :zoom="ymapZoom"
+                    style="width: 100%; height: 600px;"
+                    :controls="['trafficControl', 'zoomControl']"
+                    :placemarks="ymapPlacemarks"
+                    map-type="map"
+            >
+            </yandex-map>
+
+            <div class="clear"></div>
+        </section>
+
+
+        <section class="company_map" v-if="$route.params.companySegment === 'news'">
+            <div class="content news_list">
+                <!-- <div class="block_title">Новости</div> -->
+
+                <div class="grid">
+                        <div class="item_wrap" v-for="item in company.item.news">
+                        <router-link :to="{path: '/article/' + item.alias}" class="item type2">
+                            <div class="img">
+                                <img :src="(item.image_400_200 ? item.image_400_200 : noImageUrls.article400200)" alt="">
+                            </div>
+
+                            <div class="info">
+                                <div class="date left">{{item.article_date}}</div>
+                                <div class="clear"></div>
+
+                                <div class="name">{{item.name}}</div>
+
+                                <div class="desc" v-html="item.introtext"></div>
+                            </div>
+                        </router-link>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="products" v-if="$route.params.companySegment === 'products'">
+            <div class="block_title left">Продукция</div>
+            <div class="clear"></div>
+            <div class="grid">
+                <div class="item_wrap" v-for="item in company.item.products">
+                    <div class="product">
+                        <div class="thumb">
+                            <router-link :to="'/product/' + item.alias">
+                                <img :src="(item.image ? item.image : noImageUrls.product250250)" alt="">
+                            </router-link>
+                        </div>
+
+                        <div class="info">
+                            <div class="name">
+                                <router-link :to="'/product/' + item.alias">
+                                    {{item.name}}
+                                </router-link>
+                            </div>
+
+                            <div class="price" v-if="item.price">
+                                <b>{{item.price}}</b> {{item.currency}}
+                            </div>
+
+                            <router-link :to="'/product/' + item.alias" class="details">
+                                подробнее
+                            </router-link>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <transition name="bounce">
+        <div class="modal-mask" v-if="prompt" @click="prompt = ''">
+            <div class="modal-wrapper">
+                <div id="company_contacts_modal" class="modal big" @click.stop v-show="!companyFeedback">
+                    <div class="head">
+                        <div class="name">{{company.item.name}}</div>
+                        <div class="desc"></div>
+                    </div>
+
+                    <div class="tabs_container">
+                        <ul class="tabs">
+                            <li v-bind:class="{ active: prompt == 'phones' }" @click="prompt = 'phones'">
+                                <a>Телефоны</a>
+                            </li>
+                            <li v-show="company.item.working_time && company.item.working_time !== '*'" v-bind:class="{ active: prompt == 'working_time' }" @click="prompt = 'working_time'">
+                                <a>Режим работы</a>
+                            </li>
+                            <li v-show="company.item.email" v-bind:class="{ active: prompt == 'email' }" @click="prompt = 'email'">
+                                <a>E-mail</a>
+                            </li>
+                        </ul>
+
+                        <div v-show="prompt == 'phones'" class="">
+                            <div class="phones">
+                                <div v-if="company.item.phone_1">{{company.item.phone_1}}</div>
+                                <div v-if="company.item.phone_2">{{company.item.phone_2}}</div>
+                                <div v-if="company.item.phone_3">{{company.item.phone_3}}</div>
+                                <div v-if="company.item.phone_4">{{company.item.phone_4}}</div>
+                                <div v-if="company.item.phone_5">{{company.item.phone_5}}</div>
+                                <div v-if="company.item.fax">{{company.item.fax}}</div>
+                            </div>
+                            <a href="#" class="report_link">Сообщить о неправльном номере</a>
+                        </div>
+
+                        <div v-show="prompt == 'working_time'" class="">
+                            <div class="times">
+                                <div>
+                                    <div class="day left">{{company.item.working_time}}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div v-show="prompt == 'email'" class="">
+                            <div class="emails">
+                                <div><a href="mailto:celanbaltic@mail.ru">{{company.item.email}}</a></div>
+                            </div>
+                            
+                            <a class="feedback_link modal_link" @click="toggleModal()">написать нам</a>
+                        </div>
+                    </div>
+
+                    <button class="modal-close" title="Закрыть" @click="prompt = ''"></button>
+                    
+                </div>
+
+                <div class="modal big" id="company_feedback_modal" @click.stop v-show="companyFeedback">
+                    <div class="modal_title">Связаться с компанией</div>
+
+                    <form action="" class="form">
+                        <div class="lines">
+                            <div class="line">
+                                <div class="field">
+                                    <input type="text" name="" value="" class="input" placeholder="Ваше имя*">
+                                </div>
+                            </div>
+
+                            <div class="line">
+                                <div class="field">
+                                    <input type="tel" name="" value="" class="input" placeholder="Ваш телефон*">
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="lines">
+                            <div class="line">
+                                <div class="field">
+                                    <input type="email" name="" value="" class="input" placeholder="Ваш e-mail*">
+                                </div>
+                            </div>
+
+                            <div class="line">
+                                <div class="field">
+                                    <input type="text" name="" value="" class="input" placeholder="Ваш город*">
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="line">
+                            <div class="field">
+                                <textarea name="" placeholder="Ваше сообщение"></textarea>
+                            </div>
+                        </div>
+
+
+                        <div class="submit">
+                            <button type="submit" class="submit_btn">отправить</button>
+                        </div>
+                    </form>
+                    <button class="modal-close" title="Закрыть" @click="toggleModal()"></button>
+                </div>
+            </div>
+        </div>
+
+        
+    </transition>
+
+</section>
+

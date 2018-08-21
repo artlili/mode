@@ -1,0 +1,31 @@
+$orange-color: #ee4f33;
+
+.cartIcon {
+  flex: 1;
+  max-width: 70px;
+  padding-left: 0;
+  padding-bottom: 0;
+  padding-top: 0;
+  padding-right: 14px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  
+  
+  &_image {
+    color: $orange-color;
+    font-size: 25px;
+    margin-right: 13px;
+  }
+
+  &_badge {
+    color: #fff;
+    width: 20px;
+    height: 20px;
+    font-size: 9px;
+    line-height: 20px;
+    text-align: center;
+    background-color: $orange-color;
+    border-radius: 50%;
+  }
+}

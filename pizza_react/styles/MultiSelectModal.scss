@@ -1,0 +1,52 @@
+$red: #ee4f33;
+$green: #719539;
+
+.availableCount {
+  background-color: $green;
+  color: #fff;
+  text-align: center;
+  padding: 5px 0 7px 0;
+  font-size: 18px;
+}
+
+.listItem {
+  padding: 0 14px 0 6px;
+  font-size: 17px;
+
+  div {
+    justify-content: space-between;
+  }
+
+  &__btn {
+    width: 130px;
+    border: 1px solid $red;
+    border-radius: 5px;
+    margin-top: 8px;
+
+    ons-button {
+      width: 50%;
+      text-align: center;
+      color: $red;
+      border-radius: 0;
+      line-height: 1;
+
+      &:nth-child(2) {
+        border-left: 1px solid $red;
+      }
+    }
+  }
+
+  &__price {
+    color: $green;
+    margin-bottom: 13px;
+    font-size: 22px;
+  }
+
+  &__count {
+    font-weight: 300;
+    text-align: right;
+    font-size: 22px;
+  }
+
+  border-bottom: 1px solid #c8c7cc;
+}

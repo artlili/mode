@@ -1,0 +1,254 @@
+.author-ads {
+	margin-top: 20px;
+
+	.block-title {
+		margin-bottom: 20px;
+		text-transform: uppercase;
+		font-weight: 600;
+		font-size: 15px;
+	}
+
+	.item {
+		width: 100%;
+	}
+}
+
+/*** Slider ***/
+.add-slider {
+  .slide {
+    background-color: #fff;
+    width: 100%;
+    /*height: 440px;*/
+    border: 1px solid #e6e6e6;
+    overflow: hidden;
+
+    .image {
+      height: inherit;
+      display: table;
+
+      /*a {
+      	display: block;
+      	max-width: 100%;
+      	width: 360px;
+      	height: 280px;
+      	overflow: hidden;
+      	margin: auto;
+
+	      img {
+	      	margin: 20px auto;
+	      	width: 100%;
+	      	
+	      }
+
+      }*/
+
+
+      span {
+        cursor: pointer;
+        display: table-cell;
+        vertical-align: middle;
+        text-align: center;
+        width: 100%;
+        height: 100%;
+        position: relative;
+
+        &:before {
+          content: '';
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          background: url(/tmp/plus.png) no-repeat 0 0;
+          width: 50px;
+          height: 50px;
+          margin-top: -25px;
+          margin-left: -25px;
+          display: none;
+        }
+
+        &:hover:before {
+          display: block;
+        }
+      }
+
+    }
+
+    .desc {
+      height: inherit;
+      padding: 30px 30px 30px 0;
+
+      h3 {
+      	color: #337ab7;
+      	font-weight: 500;
+	    font-size: 22px;
+	    letter-spacing: .02em;
+	    height: 58px;
+	    overflow: hidden;
+	    margin-bottom: 10px;
+      }
+
+      .vendor {
+      	background-color: #f7f7f7;
+      	padding: 5px 10px;
+      	margin-bottom: 15px;
+
+      	a {
+      		text-transform: uppercase;
+	        font-size: 10px;
+	        font-weight: 500;
+	        color: #0c3069;
+      	}
+
+      	span {
+      		display: inline-block;
+      		color: #999;
+      		font-size: 13px;
+      		font-weight: 300;
+      		margin-left: 20px;
+      	}
+        
+      }
+
+      p {
+        color: #686868;
+        line-height: 1.3;
+        height: 60px;
+        overflow: hidden;
+      }
+
+      .price {
+        font-size: 24px;
+        font-weight: 500;
+
+        span {
+        	font-size: 14px;
+        	font-weight: 300;
+        	color: #686868;
+        	display: inline-block;
+        	margin-right: 10px;
+        }
+      }
+
+      .button {
+        margin: 25px 0 20px;
+      }
+
+      .more {
+        font-size: 13px;
+        font-weight: normal;
+      }
+    }
+  }
+}
+
+.add-desc {
+	padding: 20px 0;
+
+	.title {
+	    font-size: 18px;
+	    text-transform: uppercase;
+	    font-weight: 500;
+	    margin: 15px 0;
+	}
+}
+
+.add-slider__thumb {
+  position: relative;
+  background-color: #fff;
+  width: 100%;
+  /*height: 213px;*/
+  padding: 0 15px;
+  border: 1px solid #e6e6e6;
+  border-top: 0;
+  overflow: hidden;
+
+  .thumb {
+    display: inline-block;
+    padding: 20px 10px 12px;
+    border-bottom: 8px solid transparent;
+    width: 25%;
+    margin-bottom: -8px;
+    cursor: pointer;
+    position: relative;
+    z-index: 10;
+
+    img {
+      margin: 0 auto;
+    }
+  }
+  .active {
+    border-bottom-color: #287fc4;
+  }
+  .control {
+    position: absolute;
+    top: 50%;
+    margin-top: -13px;
+    margin-left: -15px;
+    width: 100%;
+    z-index: 50;
+
+    > a {
+      width: 26px;
+      height: 26px;
+      margin: 0 5px;
+      text-indent: -9999px;
+      background-position: 0 0;
+      background-repeat: no-repeat;
+      display: inline-block;
+    }
+
+    .prev {
+      float: left;
+      background: url(/tmp/prev.jpg);
+
+    }
+
+    .next {
+      float: right;
+      background: url(/tmp/next.jpg);
+    }
+  }
+}
+
+@media only screen and (max-width: 768px) {
+  .add-slider {
+    .slide {
+      height: auto;
+
+      .desc {
+      	padding-left: 30px;
+
+      	h3 {
+      		height: 50px;
+      	}
+
+      	p {
+      		height: 58px;
+      	}
+      }
+
+      .image {
+        width: 100%;
+        text-align: center;
+      }
+    }
+  }
+  .add-slider__thumb {
+    height: 152px;
+
+    .thumb {
+      width: 33.333333%;
+    }
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  .add-slider__thumb {
+    white-space: nowrap;
+    height: auto;
+    padding: 0;
+
+    .control {
+      display: none;
+    }
+  }
+}

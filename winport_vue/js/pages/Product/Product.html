@@ -1,0 +1,167 @@
+<div class="text_block info_page page-width">
+    <gallery :images="productImagesBig" :index="imageIndex" @close="imageIndex = null"></gallery>
+    <section class="section clearfix">
+        <div class="section-inner wrapper">
+            <div class="window__title">
+                <h3 class="window__h3">
+                    {{product.item.name}}
+                </h3>
+            </div>
+            <div class="entry-slider">
+                <div class="slide">
+                    <div class="col-sm-5 image">
+                        <span @click="imageIndex = 0">
+                            <img :src="productImages[0]"/>
+                        </span>
+                    </div>
+                    <div class="col-sm-7 desc">
+                        <section v-if="product.item.sections.length" class="company_view_sections">
+                            <div class="title">Категории</div>
+                            <router-link v-for="item in product.item.sections" :key="alias" :to="'/products/' + item.alias">
+                                <span>{{item.name}}</span>
+                            </router-link>
+                        </section>
+                        <div v-html="product.item.introtext"></div>
+                    </div>
+                </div>
+                <div v-if="product.item.images.length > 1" class="entry-slider__thumb">
+                    <div
+                            class="thumb"
+                            v-for="(image, i) in productImages.slice(1, productImages.length)"
+                            :key="i + 1"
+                            @click="imageIndex = i + 1"
+                    >
+                        <img :src="image"/>
+                    </div>
+
+                    <!--
+                    <div class="control">
+                        <a class="prev" href="">prev</a>
+                        <a class="next" href="">next</a>
+                    </div>
+                    -->
+                </div>
+            </div>
+
+            <div class="product-desc">
+                <div v-if="product.item.text">
+                    <div class="title">Описание</div>
+                    <div v-html="product.item.text"></div>
+                </div>
+
+                <div v-if="product.item.weight || product.item.width">
+                    <div class="title">Характеристики</div>
+                    <table class="table table-striped">
+                        <tr v-if="product.item.width">
+                            <td>Габариты</td>
+                            <td>{{product.item.width}} x {{product.item.height}} x {{product.item.depth}}</td>
+                        </tr>
+                        <tr v-if="product.item.weight">
+                            <td>Вес</td>
+                            <td>{{product.item.weight}} г</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="aside">
+            <div class="go_back"><a onClick="window.history.back()">Вернуться назад</a></div>
+            <div v-if="product.item.prices.length" class="aside-head">
+                <h3>Предложения компаний</h3>
+            </div>
+            <div v-if="product.item.prices.length" class="aside-inner bordered">
+                <div class="company-offers">
+                    <div v-for="(item, index) in product.item.prices" class="item">
+                        <div class="item-inner">
+                            <div class="image">
+                                <img :src="item.companyLogo ? item.companyLogo : noImageUrls.company270180">
+                            </div>
+                            <div class="price" v-if="item.price !== '0.00'">{{item.price}} {{item.currency}}</div>
+                            <div class="price" v-else>Цена<br /> по запросу</div>
+                        </div>
+
+                        <div class="buttons">
+                            <span class="phones" @click="companyContactsId = index; companyContactsPrompt = 'phones'">Телефоны</span>
+                            <router-link :to="'/company/' + item.companyAlias" class="more">Подробнее</router-link>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="recomend__img">
+                    <banner position="InsideProduct"></banner>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal -->
+    <div class="modal" id="entry-slider__modal">
+        <div class="close">&times;</div>
+        <div class="modal-body">
+            <img src="/tmp/product.png">
+        </div>
+        <div class="control">
+            <a class="prev" href="">prev</a>
+            <a class="next" href="">next</a>
+        </div>
+    </div>
+
+    <transition name="bounce">
+        <div class="modal-mask" v-if="companyContactsId !== '' && product.item.prices[companyContactsId]" @click="companyContactsId = ''; companyContactsPrompt = ''">
+            <div class="modal-wrapper">
+                <div id="company_contacts_modal" class="modal big" @click.stop v-show="!companyFeedback">
+                    <div class="head">
+                        <div class="name">{{product.item.prices[companyContactsId].name}}</div>
+                        <div class="desc"></div>
+                    </div>
+
+                    <div class="tabs_container">
+                        <ul class="tabs">
+                            <li v-bind:class="{ active: companyContactsPrompt == 'phones' }" @click="companyContactsPrompt = 'phones'">
+                                <a>Телефоны</a>
+                            </li>
+                            <li v-show="product.item.prices[companyContactsId].working_time && product.item.prices[companyContactsId].working_time !== '*'" v-bind:class="{ active: companyContactsPrompt == 'working_time' }" @click="companyContactsPrompt = 'working_time'">
+                                <a>Режим работы</a>
+                            </li>
+                            <li v-show="product.item.prices[companyContactsId].email" v-bind:class="{ active: companyContactsPrompt == 'email' }" @click="companyContactsPrompt = 'email'">
+                                <a>E-mail</a>
+                            </li>
+                        </ul>
+
+                        <div v-show="companyContactsPrompt == 'phones'" class="">
+                            <div class="phones">
+                                <div v-if="product.item.prices[companyContactsId].phone_1">{{product.item.prices[companyContactsId].phone_1}}</div>
+                                <div v-if="product.item.prices[companyContactsId].phone_2">{{product.item.prices[companyContactsId].phone_2}}</div>
+                                <div v-if="product.item.prices[companyContactsId].phone_3">{{product.item.prices[companyContactsId].phone_3}}</div>
+                                <div v-if="product.item.prices[companyContactsId].phone_4">{{product.item.prices[companyContactsId].phone_4}}</div>
+                                <div v-if="product.item.prices[companyContactsId].phone_5">{{product.item.prices[companyContactsId].phone_5}}</div>
+                                <div v-if="product.item.prices[companyContactsId].fax">{{product.item.prices[companyContactsId].fax}}</div>
+                            </div>
+                        </div>
+
+                        <div v-show="companyContactsPrompt == 'working_time'" class="">
+                            <div class="times">
+                                <div>
+                                    <div class="day left">{{product.item.prices[companyContactsId].working_time}}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div v-show="companyContactsPrompt == 'email'" class="">
+                            <div class="emails">
+                                <div><a href="mailto:celanbaltic@mail.ru">{{product.item.prices[companyContactsId].email}}</a></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="modal-close" title="Закрыть" @click="companyContactsId = ''; companyContactsPrompt = ''"></button>
+
+                </div>
+            </div>
+        </div>
+    </transition>
+</div>

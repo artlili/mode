@@ -1,0 +1,5 @@
+<div class="banner"
+     v-html="bannerItems[position].items[0]"
+     v-if="bannerItems[position] && bannerItems[position].items[0]"
+     v-bind:class="[bannerItems[position].css ? bannerItems[position].css: ''] ">
+</div>
