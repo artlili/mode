@@ -16,10 +16,24 @@
 
     <section class="section clearfix">
         <div class="section-inner wrapper">
-
+            <div class="search products-search">
+                <input @keyup.enter="fetchSearchDataCompany" type="text" name="search" v-model="search"
+                       class="input left" placeholder="Найти компанию">
+                <button @click="fetchSearchDataCompany" class="submit_btn left"></button>
+            </div>
+            <span class="product_filter" v-if="sort === 'asc'" @click="fetchSearchDataDescCompany"
+                  style="font-size: 3rem; color: #287fc4; cursor: pointer"><i class="fas fa-sort-amount-up"
+                                                                              style="margin-top: 4px; margin-left: 5px"></i></span>
+            <span class="product_filter" v-if="sort === 'desc'" @click="fetchSearchDataAscCompany"
+                  style="font-size: 3rem; color: #287fc4; cursor: pointer"><i class="fas fa-sort-amount-down"
+                                                                              style="margin-top: 4px; margin-left: 5px"></i></span>
+            <div class="clear"></div>
+            <br>
+            <span v-html="page.section.text"></span>
             <div class="clearfix" v-if="page.items.length">
 
                 <div v-if="companiesTop.length" v-for="(item, index) in companiesTop" class="company">
+
                     <div class="company_head">
                         <div class="row">
                             <div class="company_head-name col-lg-6 col-md-5">
@@ -28,8 +42,12 @@
                                 </router-link>
                             </div>
                             <div class="company_head-buttons col-lg-6 col-md-7">
-                                    <span href class="btn btn-primary"
-                                          @click="companyContactsId = index; companyContactsPrompt = 'email'">
+                                    <span href class="btn btn-primary" v-if="item.email.length>0"
+                                          @click="companyContactsId = index; isShowCompanyFeedback=true; setOpenCompanyContact(true);">
+                                        Связаться с компанией
+                                    </span>
+                                    <span href class="btn btn-primary" v-if="item.email.length === 0"
+                                      @click="companyContactsId = index; isShowCompanyFeedback=false; selectedCompanyTab = 'phones'; setOpenCompanyContact(true);">
                                         Связаться с компанией
                                     </span>
                             </div>
@@ -51,15 +69,10 @@
                                     <div class="phones_link">
 
                                             <span class="modal_link" href="" v-if="item.phone_1"
-                                                  @click="companyContactsId = index; companyContactsPrompt = 'phones'">
+                                                  @click="companyContactsId = index; isShowCompanyFeedback=false; selectedCompanyTab = 'phones'; setOpenCompanyContact(true);">
                                                 <div class="icon phones"></div>
                                                 Телефон
-                                                <!-- {{item.phone_1}} -->
                                             </span>
-                                        <!-- <a class="modal_link" href="" v-if="item.phone_2">
-                                            <div class="icon phones"></div>
-                                            {{item.phone_2}}
-                                        </a> -->
                                     </div>
                                     <div class="links">
                                         <a :href="item.website" v-if="item.website" target="_blank">
@@ -67,7 +80,7 @@
                                             Вебсайт
                                         </a>
                                         <span class="modal_link" v-if="item.email"
-                                              @click="companyContactsId = index; companyContactsPrompt = 'email'">
+                                              @click="companyContactsId = index; isShowCompanyFeedback=false; selectedCompanyTab = 'email'; setOpenCompanyContact(true);">
                                                 <div class="icon email"></div>
                                                 E-mail
                                             </span>
@@ -85,7 +98,9 @@
 
                 <div v-if="companiesGeneral.length">
                     <div class="row" v-for="i in Math.ceil(companiesGeneral.length / 2)">
+
                         <div class="col-md-6" v-for="(item, index) in companiesGeneral.slice((i - 1) * 2, i * 2)">
+
                             <div class="company">
                                 <div class="company_head">
                                     <div class="">
@@ -105,19 +120,12 @@
                                                     {{item.address}}
                                                 </div>
                                                 <div class="phones_link">
-                                            
                                                     <span class="modal_link" href="" v-if="item.phone_1"
-                                                          @click="companyContactsId = index; companyContactsPrompt = 'phones'">
+                                                          @click="openGeneralCompanyContact(i, index)">
                                                         <div class="icon phones"></div>
                                                         Телефон
-                                                        <!-- {{item.phone_1}} -->
                                                     </span>
-                                                    <!-- <a class="modal_link" href="" v-if="item.phone_2">
-                                                        <div class="icon phones"></div>
-                                                        {{item.phone_2}}
-                                                    </a> -->
                                                 </div>
-
                                             </div>
                                         </div>
                                     </div>
@@ -135,7 +143,7 @@
                             :urlPrefix="'/companies' + (companiesAlias ? ('/' + companiesAlias) : '')"></pagination>
 
             </div>
-
+            <h3 v-if="!page.items.length">Ничего не найдено</h3>
         </div>
         <div class="kategory__wrap">
 
@@ -161,8 +169,15 @@
                                         <div class="icon">
                                             <img v-if="company.logo" :src="company.logo"/>
                                         </div>
-                                        
-                                        <div class="name">{{company.name}}</div>
+
+                                        <div class="name">
+                                          <span class="truncated">
+                                            {{company.name  | truncate(20)}}
+                                          </span>
+                                            <span class="full">
+                                            {{company.name}}
+                                          </span>
+                                        </div>
                                     </router-link>
                                 </div>
                             </div>
@@ -177,125 +192,5 @@
         </div>
     </section>
 
-    <transition name="bounce">
-        <div class="modal-mask" v-if="companyContactsId !== '' && page.items[companyContactsId]"
-             @click="companyContactsId = ''; companyContactsPrompt = ''">
-            <div class="modal-wrapper">
-                <div id="company_contacts_modal" class="modal big" @click.stop v-show="!companyFeedback">
-                    <div class="head">
-                        <div class="name">{{page.items[companyContactsId].name}}</div>
-                        <div class="desc"></div>
-                    </div>
-
-                    <div class="tabs_container">
-                        <ul class="tabs">
-                            <li v-bind:class="{ active: companyContactsPrompt == 'phones' }"
-                                @click="companyContactsPrompt = 'phones'">
-                                <a>Телефоны</a>
-                            </li>
-                            <li v-show="page.items[companyContactsId].working_time && page.items[companyContactsId].working_time !== '*'"
-                                v-bind:class="{ active: companyContactsPrompt == 'working_time' }"
-                                @click="companyContactsPrompt = 'working_time'">
-                                <a>Режим работы</a>
-                            </li>
-                            <li v-show="page.items[companyContactsId].email"
-                                v-bind:class="{ active: companyContactsPrompt == 'email' }"
-                                @click="companyContactsPrompt = 'email'">
-                                <a>E-mail</a>
-                            </li>
-                        </ul>
-
-                        <div v-show="companyContactsPrompt == 'phones'" class="">
-                            <div class="phones">
-                                <div v-if="page.items[companyContactsId].phone_1">
-                                    {{page.items[companyContactsId].phone_1}}
-                                </div>
-                                <div v-if="page.items[companyContactsId].phone_2">
-                                    {{page.items[companyContactsId].phone_2}}
-                                </div>
-                                <div v-if="page.items[companyContactsId].phone_3">
-                                    {{page.items[companyContactsId].phone_3}}
-                                </div>
-                                <div v-if="page.items[companyContactsId].phone_4">
-                                    {{page.items[companyContactsId].phone_4}}
-                                </div>
-                                <div v-if="page.items[companyContactsId].phone_5">
-                                    {{page.items[companyContactsId].phone_5}}
-                                </div>
-                                <div v-if="page.items[companyContactsId].fax">{{page.items[companyContactsId].fax}}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div v-show="companyContactsPrompt == 'working_time'" class="">
-                            <div class="times">
-                                <div>
-                                    <div class="day left">{{page.items[companyContactsId].working_time}}</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div v-show="companyContactsPrompt == 'email'" class="">
-                            <div class="emails">
-                                <div><a href="mailto:celanbaltic@mail.ru">{{page.items[companyContactsId].email}}</a>
-                                </div>
-                            </div>
-                            <a class="feedback_link modal_link" @click="toggleModal()">написать нам</a>
-                        </div>
-                    </div>
-
-                    <button class="modal-close" title="Закрыть"
-                            @click="companyContactsId = ''; companyContactsPrompt = ''"></button>
-
-                </div>
-                <div class="modal big" id="company_feedback_modal" @click.stop v-show="companyFeedback">
-                    <div class="modal_title">Связаться с компанией</div>
-
-                    <form action="" class="form">
-                        <div class="lines">
-                            <div class="line">
-                                <div class="field">
-                                    <input type="text" name="" value="" class="input" placeholder="Ваше имя*">
-                                </div>
-                            </div>
-
-                            <div class="line">
-                                <div class="field">
-                                    <input type="tel" name="" value="" class="input" placeholder="Ваш телефон*">
-                                </div>
-                            </div>
-                        </div>
-
-
-                        <div class="lines">
-                            <div class="line">
-                                <div class="field">
-                                    <input type="email" name="" value="" class="input" placeholder="Ваш e-mail*">
-                                </div>
-                            </div>
-
-                            <div class="line">
-                                <div class="field">
-                                    <input type="text" name="" value="" class="input" placeholder="Ваш город*">
-                                </div>
-                            </div>
-                        </div>
-
-
-                        <div class="line">
-                            <div class="field">
-                                <textarea name="" placeholder="Ваше сообщение"></textarea>
-                            </div>
-                        </div>
-
-
-                        <div class="submit">
-                            <button type="submit" class="submit_btn">отправить</button>
-                        </div>
-                    </form>
-                    <button class="modal-close" title="Закрыть" @click="toggleModal()"></button>
-                </div>
-            </div>
-        </div>
-    </transition>
+    <company-contact :company="selectedCompany" :openTab="selectedCompanyTab" :feedback="isShowCompanyFeedback"></company-contact>
 </div>

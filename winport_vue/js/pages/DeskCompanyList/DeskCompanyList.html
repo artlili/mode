@@ -1,0 +1,177 @@
+<div class="page_content desk">
+    <div class="cont">
+
+        <h1 class="page_title">
+            <div>Список компаний</div>
+        </h1>
+
+
+        <div class="clearfix">
+            <div class="section-inner wrapper">
+                <section class="page_menu">
+                    <desk-page-menu
+                            v-for="item in pageMenu"
+                            :title="item.title"
+                            :link="item.link"
+                            :key="item.title"
+                            :name="item.name"
+                    ></desk-page-menu>
+                </section>
+
+                <!-- company -->
+
+                <div v-if="page && page.deskCompanies && page.deskCompanies.length">
+                    <div class="company" v-for="(company, index) in page.deskCompanies">
+                        <div class="company_head">
+                            <div class="row">
+                                <div class="company_head-name col-lg-6 col-md-5">
+                                    <router-link :to="'/desk-company/update/' + company.id">
+                                        {{company.name}}
+                                    </router-link>
+                                </div>
+
+                                <div class="company_head-buttons col-lg-6 col-md-7">
+                                    <span class="moderation type_1" v-if="company.moderation === 1">
+                                    <span>Не обработан</span>
+                                    </span>
+                                            <span class="moderation type_2" v-if="company.moderation === 2">
+                                    <span>Опубликован</span>
+                                    </span>
+                                            <span class="moderation type_3" v-if="company.moderation === 3">
+                                    <span>Отказано в публикации</span>
+                                    </span>
+                                            <span class="moderation type_4" v-if="company.moderation === 4">
+                                    <span>Отложен</span>
+                                    </span>
+                                            <span class="moderation type_5" v-if="company.moderation === 5">
+                                    <span>Удален автоматически</span>
+                                    </span>
+                                            <span class="verify yes" v-if="company.published">
+                                    <span>Компания верифицирована</span>
+                                    </span>
+                                            <span class="verify no" v-if="!company.published">
+                                    <span>Компания не верифицирована</span>
+                                    </span>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="company_body">
+                            <div class="company_card">
+                                <div class="inner">
+                                    <div class="image col-md-4">
+                                        <router-link :to="'/desk-company/update/' + company.id">
+                                            <img :src="company.logo ? company.logo : noImageUrls.company270180"/>
+                                        </router-link>
+                                    </div>
+                                    <div class="data col-md-8">
+                                        <div class="address" v-if="company.address">
+                                            {{company.address}}
+                                        </div>
+
+                                        <div class="links">
+                                            <a class="modal_link"
+                                                @click="companyContactsId = index; isShowCompanyFeedback=false; selectedCompanyTab = 'phones'; setOpenCompanyContact(false); openGeneralCompanyContact(company);">
+                                                <div class="icon phones"></div>
+                                                Телефоны
+                                            </a>
+                                            <a v-if="company.email" class="modal_link"
+                                                @click="companyContactsId = index; isShowCompanyFeedback=false; selectedCompanyTab = 'email'; setOpenCompanyContact(false); openGeneralCompanyContact(company);">
+                                                <div class="icon email"></div>
+                                                E-mail
+                                            </a>
+                                            <a v-if="company.working_time && company.working_time.monday.length > 0"
+                                                @click="companyContactsId = index; isShowCompanyFeedback=false; selectedCompanyTab = 'working_time'; setOpenCompanyContact(false); openGeneralCompanyContact(company);">
+                                                <div class="icon times"></div>
+                                                Расписание
+                                            </a>
+                                            <a :href="company.website" target="_blank" v-if="company.website">
+                                                <div class="icon site"></div>
+                                                Вебсайт
+                                            </a>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="company_desc-bottom">
+                            <div class="pull-left"><strong>#{{company.id}}</strong></div>
+                            <div class="pull-right">
+                                <span class="company-published" v-if="company.published">
+                                    <router-link :to="'/company/' + company.alias">
+                                        Посмотреть
+                                    </router-link>
+                                </span>
+                                            <span class="company-edit">
+                                    <router-link :to="'/desk-company/update/' + company.id">
+                                        Редактировать
+                                    </router-link>
+                                </span>
+
+                                <span
+                                    v-if="isHistoryExists(company.id)"
+                                    class="company-history"
+                                    :class="{'open' : company.id === companyContactsId}"
+                                    @click="showHistory(company)"
+                                >История</span>
+
+                            </div>
+
+                        </div>
+
+                        <div v-if="company.id === companyContactsId">
+
+                            <div v-if="page && page.lastRequests && page.lastRequests.length">
+                                <table
+                                        class="table table-hover request-table table-striped table-responsive"
+
+                                >
+                                    <thead>
+                                    <tr>
+                                        <th>Компания</th>
+                                        <th>Запрос</th>
+                                        <th>Ответ</th>
+                                        <th>Дата запроса</th>
+                                    </tr>
+                                    </thead>
+
+                                    <tbody>
+                                    <tr v-for="company in page.lastRequests"
+                                        v-if="company.company_id == companyContactsId"
+                                    >
+                                        <td class="request-company-name">
+
+                                        <span>
+                                        {{company.name}}
+                                        </span>
+                                        </td>
+                                        <td>
+                                            {{company.request}}
+                                        </td>
+                                        <td>
+                                            <div v-if="company.response">{{company.response}}</div>
+                                            <div v-if="company.message">{{company.message}}</div>
+                                        </td>
+                                        <td>
+                                            {{company.created}}
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+                <!-- End company -->
+
+            </div>
+            <desk-sidebar-menu></desk-sidebar-menu>
+
+        </div>
+    </div>
+
+    <company-contact :company="currentCompany" :openTab="selectedCompanyTab" :feedback="false"></company-contact>
+</div>

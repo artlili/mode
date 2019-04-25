@@ -1,0 +1,40 @@
+<transition name="bounce">
+    <div class="cropper">
+        <div class="modal-mask" v-if="openCropper" @click="setOpenCropper(false)">
+            <div class="modal-wrapper">
+                <div class="modal" @click.stop>
+                    <div class="form">
+                        <div class="modal_title">Обрезать изображение</div>
+                        <div class="cropper">
+                            <vue-cropper
+                                    ref='galleryCropper'
+                                    :guides="true"
+                                    :view-mode="2"
+                                    drag-mode="crop"
+                                    :aspect-ratio="360/240"
+                                    :auto-crop-area="1"
+                                    :background="true"
+                                    :rotatable="true"
+                                    :zoomOnWheel="false"
+                                    :zoomOnTouch="false"
+                                    :src="currentImage"
+                                    :minCropBoxWidth="360"
+                                    :minCropBoxHeight="240"
+                                    :img-style="{ 'width': '720px', 'height': '480px' }">
+                            </vue-cropper>
+                        </div>
+                        <div class="submit">
+                            <button class="btn btn-primary crop-btn rotate"
+                                    @click="rotateImage"
+                                    >Повернуть
+                            </button>
+                            <button class="btn btn-primary" @click="cropImage">Сохранить</button>
+                            <button class="btn btn-default" @click="setOpenCropper(false)">Отменить</button>
+                        </div>
+                    </div>
+                    <button class="modal-close" title="Закрыть" @click="setOpenCropper(false)"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</transition>

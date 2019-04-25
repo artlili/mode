@@ -1,0 +1,592 @@
+<div class="page_content desk">
+    <div class="cont">
+
+        <h1 class="page_title">
+            <div>Список компаний</div>
+        </h1>
+
+        <div class="clearfix">
+            <div class="section-inner wrapper">
+                <section class="page_menu">
+                    <desk-page-menu
+                            v-if="mode==='new'"
+                            v-for="item in pageMenu"
+                            :title="item.title"
+                            :link="item.link"
+                            :key="item.title"
+                            :name="item.name"
+                    ></desk-page-menu>
+                    <a
+                            href=""
+                            class="name active back-btn"
+                            v-if="mode==='edit'"
+                            @click.prevent="$router.go(-1)"
+                    >Вернуться назад</a>
+                </section>
+
+                <!-- steps -->
+                <div class="company-create">
+                    <div v-if="mode == 'edit'">
+                        <div class="status">
+                            <b>Статус верификации:</b><span>{{ verificationStatus }}</span><br>
+                            <b>Верифицирующий документ:</b>
+                            <span v-if="this.company.verification_file_url"><a href='#' @click.prevent="downloadVerificationFile" target="_blank">Загружен</a></span>
+                            <span v-else><a href="#" @click.stop="scrollToVerify">Ожидает загрузки</a></span>
+                            <br>
+                            <b>Статус публикации:</b><span>{{ publicStatus }}</span><br>
+                            <b>Статус модерации:</b><span>{{ moderationStatus }}</span><br>
+                            <b>Текущая ссылка для просмотра:</b><span><a v-once :href="publicLink">{{ publicLink }}</a></span><br>
+                        </div>
+                    </div>
+
+                    <!-- step 1-->
+                    <stepper-vertical :open="true" :class="{ error: isStep1Error }">
+                        <template slot="step-title">
+                            <h2 v-if="mode === 'new'">Добавление информации о компании <span>{{company.name}}</span></h2>
+                            <h2 v-else>Редактирование информации о компании <span>{{company.name}}</span></h2>
+                        </template>
+                        <template slot="step-inner">
+                            <div class="form-group">
+                                <label class="control-label" for="company-name">Название компании</label>
+                                <input
+                                        type="text"
+                                        id="company-name"
+                                        class="form-control"
+                                        v-model="company.name"
+                                        placeholder="Введите название компании"
+                                >
+                                <form-element-error
+                                        :errors="errors.name"
+                                        v-if="errors && errors.name">
+                                </form-element-error>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="control-label" for="company-alias">В данное поле вы можете ввести url
+                                    представления
+                                    компании латиницей или он будет создан автоматически методом транслитерации</label>
+                                <input
+                                        type="text"
+                                        id="company-alias"
+                                        class="form-control"
+                                        v-model="companyAlias"
+                                        @change="userTouched = true"
+                                        placeholder="Vvedite nazvanie kompaniy latinicei"
+                                >
+                                <form-element-error
+                                        :errors="errors.alias"
+                                        v-if="errors && errors.alias">
+                                </form-element-error>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="control-label">Категории, в которых будет представлена компания в
+                                    каталоге</label>
+                                <select2
+                                        @selected="assignSelectedOptions"
+                                        :data-url="sectionUrl"
+                                        :initialized="company.isSelectInitialized"
+                                        :current-selected="company.selectedSections"
+                                ></select2>
+                                <form-element-error
+                                        :errors="errors.selectedSections"
+                                        v-if="errors && errors.selectedSections">
+                                </form-element-error>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="control-label" for="company-introtext">Краткое описание компании</label>
+                                <textarea
+                                        id="company-introtext"
+                                        class="form-control"
+                                        placeholder="Краткое описание компании, не более 1000 символов"
+                                        v-model="company.introtext"
+                                ></textarea>
+                                <form-element-error
+                                        :errors="errors.introtext"
+                                        v-if="errors && errors.introtext">
+                                </form-element-error>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="control-label" for="company-text">Подробное описание деятельности
+                                    компании</label>
+                                <div>
+                                    <div v-if="!is_admin">
+                                        <tiny-mce id="company-text" v-model="company.text" :selector="'#company-text'" :value="company.text"></tiny-mce>
+                                    </div>
+                                    <div v-if="is_admin">
+                                        <tiny-mce-advanced :companyId="company.id" id="company-text-advanced" v-model="company.text" :selector="'#company-text-advanced'" :value="company.text"></tiny-mce-advanced>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </template>
+                    </stepper-vertical>
+                    <!-- end step 1-->
+
+                    <!-- steps 2-->
+                    <stepper-vertical>
+                        <template slot="step-title">
+                            <h2>Закачать логотип</h2>
+                        </template>
+                        <template slot="step-inner">
+                            <!-- Cropper -->
+                            <div class="form-group">
+                                <div class="crop-img">
+                                    <label class="control-label" for="upload" v-if="hideUploadBtn == 1">
+                                        <span class="file-upload">
+                                        <input
+                                                id="upload"
+                                                class="file-upload__input"
+                                                type="file"
+                                                name="file-upload"
+                                                accept="image/*"
+                                                @change="setImage">
+                                        </span>
+                                    </label>
+                                    <span class="hint" v-if="imgSrc == ''">Загрузите изображение размером более 540 x 360 px, <br>разрешением не менее 96 dpi,
+                    используя файлы: jpeg / png / gif </span>
+                                    <div v-if="hideUploadBtn <= 2">
+                                        <div class="crop-img__container">
+                                            <vue-cropper
+                                                    ref='cropper'
+                                                    :guides="true"
+                                                    :view-mode="0"
+                                                    drag-mode="crop"
+                                                    :aspect-ratio="270/180"
+                                                    :auto-crop-area="1"
+                                                    :min-container-width="540"
+                                                    :min-container-height="360"
+                                                    :background="true"
+                                                    :rotatable="true"
+                                                    :zoomOnWheel="false"
+                                                    :zoomOnTouch="false"
+                                                    :src="imgSrc"
+                                                    :minCropBoxWidth="540"
+                                                    :minCropBoxHeight="360"
+                                                    :img-style="{ 'width': '540px', 'height': '360px' }">
+                                            </vue-cropper>
+                                        </div>
+
+                                        <div class="zoom-slider">
+                                            <vue-slider
+                                                    ref="slider"
+                                                    v-model="zoomImg"
+                                                    direction="vertical"
+                                                    height="240px"
+                                                    tooltip="false"
+                                                    @callback="zoomChange"
+                                                    v-if="imgSrc != ''"
+                                                    :process-style="{ backgroundColor: '#abc4f5', width: '8px', paddingLeft: '10px' }"
+                                            ></vue-slider>
+                                        </div>
+
+                                        <button
+                                                class="btn btn-primary crop-btn"
+                                                @click="cropImage"
+                                                v-if="imgSrc != ''">Crop
+                                        </button>
+                                        <button
+                                                class="btn btn-primary crop-btn rotate"
+                                                @click="rotateImage"
+                                                v-if="imgSrc != ''">Rotate
+                                        </button>
+                                    </div>
+                                    <div v-if="hideUploadBtn == 3">
+                                        <button
+                                                class="btn btn-danger crop-btn delete"
+                                                @click="deleteImage"
+                                                v-if="imgSrc != ''">Delete
+                                        </button>
+
+                                        <img :src="cropImg" class="cropped-img" alt="Cropped Image"/>
+                                    </div>
+                                </div>
+                                <form-element-error
+                                        v-bind:errors="errors.logo"
+                                        v-if="errors && errors.logo">
+                                </form-element-error>
+                                <a v-if="logo_original_url.length>0" :href="logo_original_url"
+                                   target="_blank">Оригинал</a>
+                            </div>
+                        </template>
+                    </stepper-vertical>
+                    <!-- End steps 2-->
+
+                    <!-- steps 3-->
+                    <stepper-vertical>
+                        <template slot="step-title">
+                            <h2>Мета теги</h2>
+                        </template>
+                        <template slot="step-inner">
+                            <div class="form-group">
+                                <label class="control-label" for="company-title">Заголовок страницы (meta title)</label>
+                                <input
+                                        type="text"
+                                        id="company-title"
+                                        class="form-control"
+                                        placeholder="Введите заголовок страницы"
+                                        v-model="company.title"
+                                >
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label" for="company-description">Описание страницы (meta
+                                    description)</label>
+                                <textarea
+                                        id="company-description"
+                                        class="form-control"
+                                        placeholder="Введите описание страницы"
+                                        v-model="company.description"
+                                ></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label" for="company-keywords">Ключевые слова (meta
+                                    keywords)</label>
+                                <textarea
+                                        id="company-keywords"
+                                        class="form-control"
+                                        placeholder="Введите поисковые ключевые слова"
+                                        v-model="company.keywords"
+                                ></textarea>
+                            </div>
+                        </template>
+                    </stepper-vertical>
+                    <!-- End steps 3-->
+
+                    <!-- steps 4-->
+                    <stepper-vertical :class="{ error: isStep4Error }">
+                        <template slot="step-title">
+                            <h2>Адреса и связи с компанией</h2>
+                        </template>
+                        <template slot="step-inner">
+                            <company-adress-tabs
+                                    v-on:company-address="assignCompanyAddress"
+                                    v-on:company-contacts="assignCompanyContacts"
+                                    v-on:company-time="assignCompanyTime"
+                                    :errors="errors"
+                                    :branches="company.branches"
+                            ></company-adress-tabs>
+                        </template>
+                    </stepper-vertical>
+                    <!-- End steps 4-->
+
+                    <!-- steps 5-->
+                    <stepper-vertical>
+                        <template slot="step-title">
+                            <h2>Галерея</h2>
+                        </template>
+                        <template slot="step-inner">
+                            <gallery-tabs
+                                    v-on:company-images="assignCompanyImages"
+                                    :gallery="company.gallery"
+                            ></gallery-tabs>
+                        </template>
+                    </stepper-vertical>
+                    <!-- End steps 5-->
+
+                    <!-- steps 6-->
+                    <stepper-vertical :class="{ error: isStep6Error }">
+                        <template slot="step-title">
+                            <h2>Верификация</h2>
+                        </template>
+                        <template slot="step-inner">
+                            <div class="row" id="verify">
+                                <div class="col-md-12">
+
+                                    <!-- Legal entity fields -->
+                                    <section>
+                                        <div class="row">
+                                            <div class="form-group col-md-6 pr-7">
+                                                <label class="control-label" for="company-name_suffix">Форма
+                                                    собственности</label>
+                                                <v-select
+                                                        type="text"
+                                                        id="company-name_suffix"
+                                                        taggable
+                                                        :options="['ЗАО', 'ИП', 'Иностранное предприятие', 'ОДО', 'ООО', 'ОАО', 'УП', 'ЧУП', 'ИП']"
+                                                        placeholder="Укажите форму собственности"
+                                                        v-model="company.name_suffix"
+                                                />
+                                                <form-element-error
+                                                        v-bind:errors="errors.name_suffix"
+                                                        v-if="errors && errors.name_suffix">
+                                                </form-element-error>
+                                            </div>
+                                            <div class="form-group col-md-6 pl-7">
+                                                <label class="control-label" for="jur-company-name">Наименование
+                                                    юридического лица</label>
+                                                <input
+                                                        type="text"
+                                                        id="jur-company-name"
+                                                        class="form-control"
+                                                        placeholder="Введите наименование юридического лица"
+                                                        v-model="company.legal_entity_title"
+                                                >
+                                                <form-element-error
+                                                        v-bind:errors="errors.legal_entity_title"
+                                                        v-if="errors && errors.legal_entity_title">
+                                                </form-element-error>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="form-group col-md-6 pr-7">
+                                                <label class="control-label">Контактное лицо*</label>
+                                                <input
+                                                        type="text"
+                                                        class="form-control"
+                                                        placeholder="Фамилия Имя Отчество"
+                                                        v-model="company.contact_person"
+                                                >
+                                                <form-element-error
+                                                        v-bind:errors="errors.contact_person"
+                                                        v-if="errors && errors.contact_person">
+                                                </form-element-error>
+                                            </div>
+                                            <div class="form-group col-md-6 pl-7">
+                                                <label class="control-label">Страна регистрации</label>
+                                                <v-select
+                                                        :options="countries"
+                                                        v-model="company.registrationCountry"
+                                                        taggable
+                                                        placeholder="Выбрать страну регистрации"
+                                                ></v-select>
+                                                <form-element-error
+                                                        v-bind:errors="errors.registrationCountry"
+                                                        v-if="errors && errors.registrationCountry">
+                                                </form-element-error>
+                                            </div>
+                                            <div class="form-group col-md-6 pr-7">
+                                                <label class="control-label">Номер мобильного телефона*</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-addon verify-prepend"
+                                                          @click="showVerifyPhoneDropdown = true">{{verifyCountryCode}}</span>
+                                                    <the-mask
+                                                            type="tel"
+                                                            class="form-control"
+                                                            placeholder="Телефон"
+                                                            :mask="currentMask"
+                                                            v-model="maskedPhone"
+                                                            v-if="validCountry"
+                                                    ></the-mask>
+                                                    <input
+                                                            id="verifyPhone"
+                                                            type="tel"
+                                                            class="form-control"
+                                                            placeholder="Телефон"
+                                                            v-model="unmaskedPhone"
+                                                            v-if="!validCountry"
+                                                    >
+                                                    <span class="input-group-btn" v-if="validCountry">
+                                      <button class="btn btn-primary" @click="confirmCode"
+                                              :class="{ phoneVerified: phoneVerified}"
+                                              :disabled="wrongBelarusNumber || phoneVerified || (maskedPhone.length < currentPhoneLimit)">{{ confirmButton }}</button>
+                                  </span>
+                                                    <ul class="dropdown-menu pull-left"
+                                                        v-show="showVerifyPhoneDropdown">
+                                                        <li @click="changePhone('Belarus')">Беларусь (+375)</li>
+                                                        <li @click="changePhone('Russia')">Россия (+7)</li>
+                                                        <li @click="changePhone('Other')">Другой</li>
+                                                    </ul>
+                                                </div>
+                                                <div class="form-element-error" v-if="wrongBelarusNumber">
+                                                    <div>Некорректный мобильный номер Беларуси</div>
+                                                </div>
+                                                <form-element-error
+                                                        v-bind:errors="errors.registration_phone"
+                                                        v-if="errors && errors.registration_phone">
+                                                </form-element-error>
+                                            </div>
+                                            <div class="form-group col-md-6 pl-7">
+                                                <label class="control-label">{{nalogLabel}}</label>
+                                                <input
+                                                        type="text"
+                                                        class="form-control"
+                                                        v-model="company.unp_inn"
+                                                        :placeholder="nalogLabelPlaceholder"
+                                                >
+                                                <form-element-error
+                                                        v-bind:errors="errors.unp_inn"
+                                                        v-if="errors && errors.unp_inn">
+                                                </form-element-error>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-8">
+                                                <div class="form-group">
+                                  <span class="file-name" v-if="company.verification_file_url">
+                                      <b>Файл для верификации</b>:&nbsp;
+                                      <a href="#" @click.prevent="downloadVerificationFile" class="verification-file">открыть</a>
+                                      <a class="red" href="#" @click.prevent="removeVerificationFile">удалить</a>
+                                  </span>
+                                                    <label v-else class="control-label" for="upload-btn">
+                                                        <span class="file-upload-label">Свидетельство о регистрации загрузить (формат: *.jpg, *.png, *.pdf)
+                                                            <small>Загруженные документы будут видны только Вам и модераторам</small><br>
+                                                            <i><small>можно загрузить позже (в течении недели)</small></i>.<br>
+                                                        </span>
+                                                        <span class="file-name"
+                                                              v-if="fileName">Загружаемый файл:&nbsp;<span>{{ fileName }}</span>
+                                          </span>
+                                                        <span class="file-upload-btn btn btn-primary">Загрузить
+                                <input
+                                        id="upload-btn"
+                                        class="file-upload__input"
+                                        type="file"
+                                        name="file-upload-btn"
+                                        @change="getFileName"
+                                >
+                              </span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 nalog-request" v-if="showNalogRequestButton">
+                                                <button class="btn btn-primary" :disabled="!enableNalogRequestButton"
+                                                        @click="requestFns">
+                                                    Отправить
+                                                    запрос в налоговый орган
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </section>
+                                    <!-- End Legal entity fields -->
+
+                                    <!-- Additional info -->
+                                    <section>
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="form-group">
+                                                    <label for="additional-info">Дополнительная информация</label>
+                                                    <textarea v-model="company.additional_info" id="additional-info"
+                                                              class="additional-info form-control"></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </section>
+                                    <!-- End Additional info -->
+
+                                </div>
+                            </div>
+                        </template>
+                    </stepper-vertical>
+                    <!-- End steps 6-->
+
+                    <!-- Save block -->
+                    <section>
+                        <div class="save">
+                            <div class="row">
+                                <div class="col-md-9">
+                                    Нажимая на кнопку "Сохранить" Я разрешаю обработку моих персональных данных и/или
+                                    подтверждаю
+                                    внесенные
+                                    мною
+                                    изменения в соответствии с <a href="/info/user-agreement" target="_blank">Пользовательским
+                                    соглашением.</a>
+                                </div>
+                                <div class="col-md-3 text-right">
+                                    <input type="button" value="Сохранить" @click="saveCompany"
+                                           class="btn btn-primary btn-lg"/>
+                                </div>
+
+                            </div>
+                        </div>
+                    </section>
+                    <!-- End Save block -->
+
+                    <!-- Nalog info -->
+                    <section>
+                        <div class="nalog" v-if="is_admin">
+                            <div class="row enabled" v-if="enableNalogRequestButton">
+                                <div class="col-md-12">
+                                    <h3>Информация из налогового органа</h3>
+                                    <div class="empty" v-if="fnsStatus=='ok' && fnsInfo.length == 0">По вашему запросу
+                                        <i>{{number}}</i>
+                                        ничего не найдено
+                                    </div>
+                                    <div v-else>
+                                        <div class="fns-content" v-if="fnsStatus=='ok'">
+                                            <table class="table table-striped">
+                                                <thead>
+                                                <tr>
+                                                    <th>Поле</th>
+                                                    <th>Значение</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                <tr v-for="row in fnsInfo">
+                                                    <td class="field-name">{{row.field_name}}</td>
+                                                    <td class="field-value">{{row.field_value}}</td>
+                                                </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="error" v-if="fnsStatus != 'ok'">{{ fnsErrorMessage }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div v-else class="row disabled">
+                                <div class="col-md-12">
+                                    Информация из налогового органа недоступна
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    <!-- End Nalog info -->
+
+                    <!-- Verification block -->
+                    <section>
+                        <div class="confirm" v-if="is_admin">
+                            <div class="row">
+                                <div class="col-md-12 text-right">
+                                    <span v-if="company.verified">Текущий статус: верифицирована</span>
+                                    <span v-if="!company.verified">Текущий статус: не верифицирована</span>
+                                    &nbsp;&nbsp;&nbsp;
+                                    <input type="button" value="Верифицировать компанию" @click="verifyCompany"
+                                           class="btn btn-primary"/>
+                                    <input type="button" value="Отказать в верификации" @click="dontVerifyCompany"
+                                           class="btn btn-danger"/>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    <!-- End Verification block -->
+
+                    <!-- Moderation block -->
+                    <section>
+                        <div class="moderate" v-if="is_admin">
+                            <div class="row">
+                                <div class="col-md-8 text-right message">
+                                    <b>Статус модерации:</b>&nbsp;<span>{{ moderationStatus }}</span><br>
+                                </div>
+                                <div class="col-md-4 text-right">
+                                    <v-select
+                                            type="text"
+                                            id="company-moderate"
+                                            :options="moderateOptions"
+                                            :onChange="onChangeModerate"
+                                            placeholder="Укажите статус модерации"
+                                            v-model="newModerate"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    <!-- End Moderation block -->
+
+                </div>
+                <!-- End steps -->
+            </div>
+            <desk-sidebar-menu></desk-sidebar-menu>
+
+        </div>
+    </div>
+
+    <fns :country="company.registrationCountry" :number="company.unp_inn" @fnsResult="assignCurrentPageFnsInfo"></fns>
+    <reason @reason="sendReasonToServer"></reason>
+    <verify-phone
+            :country="verifyCountry"
+            :phone="fullVerifyPhone"
+            @verified="markPhoneVerified"
+    ></verify-phone>
+    <notifications position="top right"/>
+
+</div>

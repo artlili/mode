@@ -1,0 +1,65 @@
+<div class="gallery-tabs">
+    <div>
+        <ul class="tabs-head">
+            <li v-for="(tab, index) in tabs"
+                :key="index"
+                :class="{ 'current': selectedTab == index}"
+            >
+            <span
+                class="tab-name" 
+                @click="updateSelected(index, tab)"
+            >
+                {{tab.title}}
+            </span>
+            <span
+                class="tab-remove"
+                @click="removeTab(index)" 
+                v-show="selectedTab > 0"
+            >&times;</span>
+            </li>
+            <li class="tabs-add" @click="addTab">
+                + <span>Добавить еще галерею</span>
+            </li>
+        </ul>
+        <div v-for="(tab, index) in tabs"
+             :key="index"
+             v-show="selectedTab == index"
+        >
+            <div class="tab-content row">
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <div class="add-tab">
+                            <input type="text"
+                                   class="form-control"
+                                   v-model="newTab"
+                                   placeholder="Введите название галереи"
+                            >
+                            <button class="btn btn-primary edit-btn" v-on:click="editTab(tab)"></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="col-md-12 gallery-part">
+                    <vue-dropzone ref="myVueDropzone"
+                                  id="gallery-dropzone"
+                                  @vdropzone-success="successImageUpload"
+                                  @vdropzone-removed-file="removeImage"
+                                  @vdropzone-queue-complete="uploadCompleted"
+                                  :options="dropzoneOptions"></vue-dropzone>
+                    <div v-click-outside="closeTitle" class="title-picker" :style="{left : titleX + 'px', top: titleY + 'px'}" v-if="displayTitle">
+                        <label for="title-text">Введите название</label>
+                        <textarea v-model="currentTitle" class="form-control title-text" id="title-text"></textarea>
+                        <button class="btn btn-default" @click="closeTitle">Отменить</button>
+                        <button class="btn btn-primary" @click="saveTitle">Сохранить</button>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <button class="btn btn-secondary" @click="removeTab(index)" v-show="selectedTab > 0">Удалить
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <cropper v-on:cropped-image="applyCroppedImage"
+            :currentImage="imageToCrop"></cropper>
+</div>

@@ -19,35 +19,59 @@ import Error500 from './Error500/Error500.vue';
 
 import Desk from './Desk/Desk.vue';
 import DeskCompanyList from './DeskCompanyList/DeskCompanyList.vue';
-import DeskCompanyCreate from './DeskCompanyCreate/DeskCompanyCreate.vue';
-import DeskCompanyUpdate from './DeskCompanyUpdate/DeskCompanyUpdate.vue';
+import DeskCompany from './DeskCompany/DeskCompany.vue';
+
+import DeskAdList from './DeskAdList/DeskAdList.vue';
+import DeskAdCreate from './DeskAdCreate/DeskAdCreate.vue';
+import DeskAdUpdate from './DeskAdUpdate/DeskAdUpdate.vue';
+
+import DeskProfile from './DeskProfile/DeskProfile.vue';
+import DeskEmail from './DeskEmail/DeskEmail.vue';
+import DeskPassword from './DeskPassword/DeskPassword.vue';
+import DeskVerification from './DeskVerification/DeskVerification.vue';
+import DeskSubscription from './DeskSubscription/DeskSubscription.vue';
+import DeskNotifications from './DeskNotifications/DeskNotifications.vue';
+
+import Search from './Search/Search.vue';
 
 import Foolish from './Foolish/Foolish.vue';
 
 export {
-	Home,
-	Signin,
-  ConfirmSignup,
-  ChangePassword,
+    Home,
+    Signin,
+    ConfirmSignup,
+    ChangePassword,
 
-	Articles,
-	Article,
-	Products,
-	Product,
-	Companies,
-	Company,
-	Info,
-	Ads,
-	Ad,
-  AdsAuthor,
+    Articles,
+    Article,
+    Products,
+    Product,
+    Companies,
+    Company,
+    Info,
+    Ads,
+    Ad,
+    AdsAuthor,
 
-	NotFoundException,
-	Error500,
+    NotFoundException,
+    Error500,
 
-	Desk,
-  DeskCompanyList,
-  DeskCompanyCreate,
-  DeskCompanyUpdate,
+    Desk,
+    DeskCompanyList,
+    DeskCompany,
 
-	Foolish
+  DeskAdList,
+  DeskAdCreate,
+  DeskAdUpdate,
+
+	DeskProfile,
+	DeskEmail,
+	DeskPassword,
+	DeskVerification,
+	DeskSubscription,
+	DeskNotifications,
+
+	Search,
+
+    Foolish
 }

@@ -1,0 +1,26 @@
+<div class="add-phone">
+  <div class="row">
+    <div class="col-md-8">
+      <div class="input-group">
+          <input type="tel"
+                 class="form-control phone"
+                 v-model="localPhone">
+          <div class="hint"></div>
+          <span class="delete-phone" @click="deletePhone">&times;</span>
+          <div class="input-group-btn">
+        <span class="btn btn-transparent button-type"
+              @click="toggleDropdown">{{ localType }}
+          <span class="caret"></span>
+        </span>
+              <ul class="dropdown-menu pull-right"
+                  v-show="showDropdown">
+                  <li @click="changePhone('Телефон')">Телефон</li>
+                  <li @click="changePhone('Телефон/факс')">Телефон/факс</li>
+                  <li @click="changePhone('Факс')">Факс</li>
+                  <li @click="changePhone('Телефон мобильный')">Телефон мобильный</li>
+              </ul>
+          </div><!-- /btn-group -->
+      </div><!-- /input-group -->
+    </div>
+  </div>
+</div>

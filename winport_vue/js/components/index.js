@@ -4,6 +4,6 @@ import Spinner from './shared/Spinner/Spinner.vue';
 
 export {
 	Header,
-  	Banner,
+  Banner,
 	Spinner
 }

@@ -1,0 +1,9 @@
+<span class="small-gallery" :key="galleryId">
+    <big-gallery :id="bigGalleryId" :images="bigImagesUrls" :index="imageIndex" @close="imageIndex = null" :options="bigGalleryOptions"></big-gallery>
+    <div v-bind:class="carouselClass" v-bind:style="carouselStyle">
+        <div v-for="(image, i) in gallery.images" :key="i">
+            <img :src="image.thumb_url" :alt="image.alt" :title="image.alt" class="image_gallery" :data-main_url="image.main_url"/>
+            <p v-if="image.title.length > 0" style="text-align: center; font-weight: bolder">{{image.title}}</p>
+        </div>
+    </div>
+</span>
